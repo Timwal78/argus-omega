@@ -12,6 +12,13 @@ OMEGA_WEIGHT_GHOST = float(os.getenv("OMEGA_WEIGHT_GHOST", 0.20))
 OMEGA_WEIGHT_REALITY_ADJ = float(os.getenv("OMEGA_WEIGHT_REALITY_ADJ", 0.15))
 OMEGA_WEIGHT_ALIGNMENT = float(os.getenv("OMEGA_WEIGHT_ALIGNMENT", 0.10))
 
+# S3 Signal System Thresholds (Institutional Grade)
+S3_GRADE_A = float(os.getenv("S3_GRADE_A", 80))
+S3_GRADE_B = float(os.getenv("S3_GRADE_B", 60))
+S3_GRADE_C = float(os.getenv("S3_GRADE_C", 45))
+S3_IGNITION_THRESHOLD = float(os.getenv("S3_IGNITION_THRESHOLD", 80))
+S3_EXHAUSTION_THRESHOLD = float(os.getenv("S3_EXHAUSTION_THRESHOLD", 20))
+
 # Alignment Weights (Section 3)
 ALIGN_WEIGHT_ARGUS = float(os.getenv("ALIGN_WEIGHT_ARGUS", 0.35))
 ALIGN_WEIGHT_ECHO = float(os.getenv("ALIGN_WEIGHT_ECHO", 0.25))
@@ -68,10 +75,10 @@ CI_ALIGNMENT_WEIGHT = float(os.getenv("CI_ALIGNMENT_WEIGHT", 0.25))
 CI_DECEPTION_WEIGHT = float(os.getenv("CI_DECEPTION_WEIGHT", 0.15))
 CI_CONFIDENCE_WEIGHT = float(os.getenv("CI_CONFIDENCE_WEIGHT", 0.15))
 
-# --- Conviction Thresholds ---
-CI_MODERATE_THRESH = float(os.getenv("CI_MODERATE_THRESH", 0.40))
-CI_HIGH_THRESH = float(os.getenv("CI_HIGH_THRESH", 0.62))
-CI_EXTREME_THRESH = float(os.getenv("CI_EXTREME_THRESH", 0.82))
+# --- Conviction Thresholds (Aligned with S3 Master 80/60/45) ---
+CI_MODERATE_THRESH = float(os.getenv("S3_GRADE_C", 45)) / 100.0
+CI_HIGH_THRESH = float(os.getenv("S3_GRADE_B", 60)) / 100.0
+CI_EXTREME_THRESH = float(os.getenv("S3_GRADE_A", 80)) / 100.0
 
 # ——— APP CONFIG ——————————————————————————————————————————————————————————————
 APP_NAME = "Argus Omega"

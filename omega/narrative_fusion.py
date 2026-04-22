@@ -1,8 +1,15 @@
 from typing import Dict, Any
+import os
+from .intelligence import generate_ai_briefing
 
 def generate_narrative(argus_data: Dict[str, Any], reality_data: Dict[str, Any], action_class: str, dominant_scenario: str, horizon: str) -> str:
-    """Generates a concise, analytical machine-intelligence briefing."""
+    """Generates a concise, analytical briefing. Prefers AI synthesis if available."""
     
+    # ── Attempt AI Dynamic Synthesis ──
+    if os.getenv("ANTHROPIC_API_KEY"):
+        return generate_ai_briefing(argus_data, reality_data, action_class, dominant_scenario, horizon)
+
+    # ── Fallback: Static Institutional Logic ──
     bias = argus_data["bias"].replace("_", " ")
     stability = argus_data["stability"]
     
@@ -16,18 +23,7 @@ def generate_narrative(argus_data: Dict[str, Any], reality_data: Dict[str, Any],
     else:
         core = "The balance of evidence favors reversal after expansion quality degrades."
         
-    # Posture logic
-    if action_class == "watch_for_sweep":
-        posture = "Breakout chase quality is poor until sweep-and-hold confirmation appears."
-    elif action_class == "do_not_chase":
-        posture = "Immediate impulse participation is low quality and should be avoided."
-    elif action_class == "post_confirmation_candidate":
-        posture = "The best posture is confirmation-based participation rather than anticipatory entry."
-    else:
-        posture = "Patience is favored until subsystem alignment improves."
-        
     return (
         f"{bias.capitalize()} pressure is present, but the structure remains {stability}. "
-        f"{core} Deception is {reality_data['deception_score']:.2f}, with a projected horizon of {horizon}. "
-        f"{posture}"
+        f"{core} Deception is {reality_data['deception_score']:.2f}, with a projected horizon of {horizon}."
     )
