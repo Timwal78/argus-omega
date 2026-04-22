@@ -9,7 +9,21 @@ mathematical parity with the reference implementation. No simplifications.
 No rounding shortcuts. No retail heuristics.
 """
 from typing import Dict, Any, List, Optional
-from .normalization import n1, n100
+from .normalization import n1, n100, clamp
+
+
+def interpolate(val: float, in_min: float, in_max: float, out_min: float, out_max: float) -> float:
+    """Helper to interpolate values. Handles both ascending and descending input ranges."""
+    if in_min < in_max:
+        if val <= in_min: return out_min
+        if val >= in_max: return out_max
+    else:
+        # Descending range (e.g., spread 0.20 -> 0.01)
+        if val >= in_min: return out_min
+        if val <= in_max: return out_max
+    
+    return out_min + (out_max - out_min) * (val - in_min) / (in_max - in_min)
+
 from .alignment import infer_directions, calculate_alignment
 from .conviction import calculate_conviction
 from .scenario_ranker import rank_scenarios
@@ -66,6 +80,8 @@ class FusionEngine:
             * STABILITY_WEIGHTS.get(argus["stability"], 0.58)
             * (ARGUS_BASE_MODIFIER + ARGUS_EXPANSION_MODIFIER * expansion_signal)
         )
+        # Zero-Fake: Enforcement of 0.0 floor for insufficient data
+        if argus["confidence"] < 0.10: out = 0.0
         return n100(out)
 
     def echo_strength(self, echo: Dict[str, Any]) -> float:
@@ -79,7 +95,7 @@ class FusionEngine:
             100
             * echo["similarity_score"]
             * echo["confidence"]
-            * (ECHO_BASE_MODIFIER + ECHO_CONTINUATION_MODIFIER * continuation_edge)
+            * (interpolate(continuation_edge, 0.0, 1.0, 0.0, ECHO_CONTINUATION_MODIFIER))
         )
         return n100(out)
 
@@ -88,6 +104,9 @@ class FusionEngine:
         directional_clarity = abs(
             ghost["sweep_probability_up"] - ghost["sweep_probability_down"]
         )
+        # Zero-Fake: Liquidity strength must have directional clarity
+        if directional_clarity < 0.10: 
+            return 0.0
         out = (
             100
             * ghost["destination_score"]

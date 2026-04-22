@@ -1,6 +1,7 @@
 from typing import Dict, Tuple
 from app.config import BIAS_WEIGHTS, ALIGN_WEIGHT_ARGUS, ALIGN_WEIGHT_ECHO, ALIGN_WEIGHT_GHOST, ALIGN_WEIGHT_REALITY
-from .normalization import n100
+from .normalization import n100, clamp
+from .fusion_engine import interpolate
 
 def infer_directions(argus_bias: str, echo_probs: Dict[str, float], ghost_probs: Dict[str, float], reality_data: Dict[str, float]) -> Dict[str, int]:
     """Infers direction (-1, 0, 1) for each subsystem based on authoritative logic."""
@@ -23,22 +24,16 @@ def infer_directions(argus_bias: str, echo_probs: Dict[str, float], ghost_probs:
     else:
         echo_dir = 0
         
-    # GHOST
+    # GHOST (Liquidity bias interpolation)
     diff = ghost_probs["sweep_probability_up"] - ghost_probs["sweep_probability_down"]
-    if diff >= 0.10:
-        ghost_dir = 1
-    elif -diff >= 0.10:
-        ghost_dir = -1
-    else:
-        ghost_dir = 0
+    ghost_dir_raw = interpolate(diff, -0.20, 0.20, -1.0, 1.0)
+    ghost_dir = 1 if ghost_dir_raw > 0.3 else -1 if ghost_dir_raw < -0.3 else 0
         
-    # REALITY (TRUTH)
-    if reality_data["breakout_validity"] >= 0.60 and reality_data["deception_score"] <= 0.40:
-        truth_dir = 1
-    elif reality_data["deception_score"] >= 0.70 and reality_data["trap_probability"] >= 0.55:
-        truth_dir = -1
-    else:
-        truth_dir = 0
+    # REALITY (TRUTH validity interpolation)
+    validity = reality_data["breakout_validity"]
+    deception = reality_data["deception_score"]
+    truth_dir_raw = interpolate(validity - deception, -0.5, 0.5, -1.0, 1.0)
+    truth_dir = 1 if truth_dir_raw > 0.4 else -1 if truth_dir_raw < -0.4 else 0
         
     return {"argus": argus_dir, "echo": echo_dir, "ghost": ghost_dir, "truth": truth_dir}
 
