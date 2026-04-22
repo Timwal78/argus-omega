@@ -43008,3 +43008,19 @@ INFO:     Waiting for application startup.
 2026-04-21 16:29:18 | argus.omega          | INFO     | ============================================================
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://0.0.0.0:8181 (Press CTRL+C to quit)
+INFO:     Started server process [8436]
+INFO:     Waiting for application startup.
+2026-04-21 22:47:16 | argus.omega          | INFO     | ============================================================
+2026-04-21 22:47:16 | argus.omega          | INFO     |   ARGUS OMEGA � Institutional Fusion Engine ONLINE
+2026-04-21 22:47:16 | argus.omega          | INFO     |   Debug: False | Host: 0.0.0.0 | Port: 8181
+2026-04-21 22:47:16 | argus.omega          | INFO     | ============================================================
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8181 (Press CTRL+C to quit)
+INFO:     Started server process [2784]
+INFO:     Waiting for application startup.
+2026-04-21 23:29:01 | argus.omega          | INFO     | ============================================================
+2026-04-21 23:29:01 | argus.omega          | INFO     |   ARGUS OMEGA � Institutional Fusion Engine ONLINE
+2026-04-21 23:29:01 | argus.omega          | INFO     |   Debug: False | Host: 0.0.0.0 | Port: 8181
+2026-04-21 23:29:01 | argus.omega          | INFO     | ============================================================
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8181 (Press CTRL+C to quit)
