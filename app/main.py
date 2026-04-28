@@ -10,8 +10,11 @@ Main application entry point. Configures FastAPI with:
 """
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from routes import omega_scan
 from app.config import APP_NAME, DEBUG, HOST, PORT
 from app.utils.discord import send_system_alert
@@ -70,6 +73,16 @@ app.add_middleware(
 # /api/v1/omega_scan — versioned API path for production integrations
 app.include_router(omega_scan.router, tags=["Fusion"])
 app.include_router(omega_scan.router, prefix="/api/v1", tags=["Fusion (Versioned)"])
+
+# Serve dashboard UI
+_STATIC = Path(__file__).parent / "static"
+if _STATIC.exists():
+    app.mount("/ui", StaticFiles(directory=str(_STATIC), html=True), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return FileResponse(str(_STATIC / "index.html"))
 
 
 @app.get("/health", tags=["System"])

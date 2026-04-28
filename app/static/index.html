@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARGUS OMEGA — Institutional Fusion Engine</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{--bg:#050810;--bg2:#0a0f1e;--bg3:#0f1628;--border:#1a2540;--accent:#a855f7;--accent2:#7c3aed;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;--blue:#3b82f6;--text:#e2e8f0;--muted:#64748b}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+  header{background:linear-gradient(135deg,#1a0a3e,#0f1628);border-bottom:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;gap:16px}
+  header h1{font-size:1.5rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#7c3aed);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  header p{font-size:.75rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+  .status-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  main{padding:32px;max-width:1400px;margin:0 auto}
+  .scanner{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:24px}
+  .scanner h2{font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:16px}
+  .input-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+  input,select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.9rem;outline:none;transition:border-color .2s}
+  input:focus,select:focus{border-color:var(--accent)}
+  input[type=text]{width:160px;text-transform:uppercase}
+  input[type=number]{width:120px}
+  .btn{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:8px;padding:10px 24px;color:#fff;font-weight:700;cursor:pointer;font-size:.9rem;transition:opacity .2s}
+  .btn:hover{opacity:.85}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:24px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent)}
+  .card.green::before{background:var(--green)}
+  .card.red::before{background:var(--red)}
+  .card.yellow::before{background:var(--yellow)}
+  .card.blue::before{background:var(--blue)}
+  .card-label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+  .card-value{font-size:2rem;font-weight:900;font-family:'JetBrains Mono',monospace}
+  .card-sub{font-size:.75rem;color:var(--muted);margin-top:4px}
+  .badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:.7rem;font-weight:700;text-transform:uppercase}
+  .badge.bullish{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.3)}
+  .badge.bearish{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+  .badge.neutral{background:rgba(100,116,139,.15);color:var(--muted);border:1px solid rgba(100,116,139,.3)}
+  .badge.high{background:rgba(168,85,247,.15);color:var(--accent);border:1px solid rgba(168,85,247,.3)}
+  .badge.medium{background:rgba(245,158,11,.15);color:var(--yellow);border:1px solid rgba(245,158,11,.3)}
+  .badge.low{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3)}
+  .score-bar{height:8px;border-radius:4px;background:var(--bg3);margin-top:8px;overflow:hidden}
+  .score-fill{height:100%;border-radius:4px;transition:width .8s ease}
+  .briefing{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px;font-size:.85rem;line-height:1.6;font-style:italic;color:var(--text);margin-bottom:24px}
+  .subsystems{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-bottom:24px}
+  .sub-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px}
+  .sub-card h3{font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+  .sub-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);font-size:.78rem}
+  .sub-row:last-child{border-bottom:none}
+  .sub-row span:last-child{font-family:'JetBrains Mono',monospace;color:var(--accent)}
+  .trigger{background:var(--bg2);border:1px solid rgba(168,85,247,.3);border-radius:10px;padding:16px;margin-bottom:24px}
+  .trigger h3{font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+  .t-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:.82rem}
+  .t-row:last-child{border-bottom:none}
+  .t-row .label{color:var(--muted)}
+  .t-row .val{font-family:'JetBrains Mono',monospace;font-weight:700}
+  .t-row .val.green{color:var(--green)}
+  .t-row .val.red{color:var(--red)}
+  .error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:16px;color:var(--red);font-size:.85rem;display:none}
+  .loading{text-align:center;padding:40px;color:var(--muted);display:none}
+  .empty{text-align:center;padding:60px;color:var(--muted)}
+  .empty h3{font-size:1rem;margin-bottom:8px}
+  .empty p{font-size:.8rem}
+  .scenarios{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px}
+  .scenarios h3{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+  .scenario-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .scenario-name{font-size:.78rem;flex:0 0 180px;color:var(--text)}
+  .scenario-bar-wrap{flex:1;background:var(--bg3);border-radius:4px;height:22px;overflow:hidden}
+  .scenario-bar{height:100%;display:flex;align-items:center;padding-left:8px;font-size:.7rem;font-weight:700;transition:width .8s}
+  .scenario-pct{font-size:.78rem;font-family:'JetBrains Mono',monospace;flex:0 0 50px;text-align:right;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="status-dot" id="statusDot"></div>
+  <div>
+    <h1>ARGUS OMEGA</h1>
+    <p>Institutional Fusion Engine — Signal Adjudication Layer</p>
+  </div>
+</header>
+<main>
+  <div class="scanner">
+    <h2>Omega Fusion Scan</h2>
+    <div class="input-row">
+      <div>
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">TICKER</div>
+        <input type="text" id="ticker" placeholder="SPY" value="SPY">
+      </div>
+      <div>
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">ARGUS STATE SCORE (0-100)</div>
+        <input type="number" id="argusScore" value="68" min="0" max="100">
+      </div>
+      <div>
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">ARGUS BIAS</div>
+        <select id="argusBias">
+          <option value="bullish">Bullish</option>
+          <option value="unstable_bullish">Unstable Bullish</option>
+          <option value="bearish">Bearish</option>
+          <option value="unstable_bearish">Unstable Bearish</option>
+          <option value="neutral">Neutral</option>
+          <option value="fractured">Fractured</option>
+        </select>
+      </div>
+      <div>
+        <div style="font-size:.7rem;color:var(--muted);margin-bottom:4px">STABILITY</div>
+        <select id="argusStability">
+          <option value="stable">Stable</option>
+          <option value="fragile">Fragile</option>
+          <option value="distorted">Distorted</option>
+          <option value="breaking">Breaking</option>
+        </select>
+      </div>
+      <button class="btn" id="scanBtn" onclick="runScan()">▶ RUN OMEGA SCAN</button>
+    </div>
+  </div>
+
+  <div class="error" id="errBox"></div>
+  <div class="loading" id="loadingBox"><div style="font-size:.9rem">⚡ Adjudicating signals across fusion layers...</div></div>
+
+  <div id="results" style="display:none">
+    <div class="grid">
+      <div class="card" id="scoreCard">
+        <div class="card-label">Omega Score</div>
+        <div class="card-value" id="omegaScore">—</div>
+        <div class="score-bar"><div class="score-fill" id="scoreBar" style="width:0%;background:var(--accent)"></div></div>
+        <div class="card-sub" id="conviction">—</div>
+      </div>
+      <div class="card" id="actionCard">
+        <div class="card-label">Action Class</div>
+        <div class="card-value" style="font-size:1.3rem" id="actionClass">—</div>
+        <div class="card-sub" id="timeHorizon">—</div>
+      </div>
+      <div class="card" id="alignCard">
+        <div class="card-label">Alignment State</div>
+        <div class="card-value" style="font-size:1.2rem" id="alignState">—</div>
+        <div class="card-sub" id="riskState">—</div>
+      </div>
+      <div class="card" id="scenarioCard">
+        <div class="card-label">Dominant Scenario</div>
+        <div class="card-value" style="font-size:1.1rem" id="domScenario">—</div>
+        <div class="card-sub" id="altScenario">—</div>
+      </div>
+    </div>
+
+    <div class="briefing" id="briefing">—</div>
+
+    <div class="trigger" id="triggerBox">
+      <h3>🎯 Trigger Map</h3>
+      <div class="t-row"><span class="label">Confirm Above</span><span class="val green" id="confirmAbove">—</span></div>
+      <div class="t-row"><span class="label">Invalidate Below</span><span class="val red" id="invalidateBelow">—</span></div>
+      <div class="t-row"><span class="label">Sweep Target</span><span class="val" id="sweepTarget">—</span></div>
+      <div class="t-row"><span class="label">Trap Trigger</span><span class="val" id="trapTrigger">—</span></div>
+      <div class="t-row"><span class="label">Confirmation Mode</span><span class="val" id="confirmMode">—</span></div>
+    </div>
+
+    <div class="scenarios">
+      <h3>Scenario Probabilities</h3>
+      <div id="scenarioRows"></div>
+    </div>
+
+    <div class="subsystems" id="subsystemsGrid"></div>
+  </div>
+
+  <div class="empty" id="emptyState">
+    <h3>Enter a ticker and run an Omega Scan</h3>
+    <p>The fusion engine adjudicates signals from Argus, Echo Forge, Liquidity Ghost, and False Reality</p>
+  </div>
+</main>
+
+<script>
+const API = 'http://127.0.0.1:8181';
+
+async function runScan() {
+  const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+  if (!ticker) return;
+
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = true;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('loadingBox').style.display = 'block';
+
+  const argusScore = parseFloat(document.getElementById('argusScore').value) || 65;
+  const bias = document.getElementById('argusBias').value;
+  const stability = document.getElementById('argusStability').value;
+
+  const payload = {
+    ticker,
+    timeframes: ["15m","1h","1d"],
+    argus: {
+      state_score: argusScore,
+      bias,
+      stability,
+      event_risk: { expansion: 0.55, reversal: 0.30, squeeze: 0.60, trap: 0.25 },
+      confidence: 0.78,
+      trigger_map: { confirm_above: null, invalidate_below: null }
+    },
+    echo_forge: {
+      similarity_score: 0.74,
+      echo_type: "momentum_continuation",
+      continuation_probability: 0.62,
+      reversal_probability: 0.28,
+      failure_probability: 0.10,
+      resolution_window_bars: 8,
+      confidence: 0.71,
+      top_matches: [{ ticker: "QQQ", date: "2024-11-08", similarity: 0.82 }]
+    },
+    liquidity_ghost: {
+      destination_score: 0.68,
+      primary_magnet: null,
+      secondary_magnet: null,
+      sweep_probability_up: 0.55,
+      sweep_probability_down: 0.35,
+      post_sweep_reversal_probability: 0.45,
+      confidence: 0.65
+    },
+    false_reality: {
+      truth_score: 0.72,
+      deception_score: 0.28,
+      breakout_validity: 0.70,
+      trap_probability: 0.22,
+      failure_warning: false,
+      confidence: 0.75
+    }
+  };
+
+  try {
+    const r = await fetch(`${API}/omega_scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(JSON.stringify(err));
+    }
+    const data = await r.json();
+    renderResults(data);
+  } catch(e) {
+    showError(e.message);
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loadingBox').style.display = 'none';
+  }
+}
+
+function renderResults(d) {
+  document.getElementById('results').style.display = 'block';
+
+  const score = d.omega_score;
+  const scoreColor = score >= 70 ? 'var(--green)' : score >= 45 ? 'var(--yellow)' : 'var(--red)';
+  document.getElementById('omegaScore').textContent = score.toFixed(1);
+  document.getElementById('scoreBar').style.width = score + '%';
+  document.getElementById('scoreBar').style.background = scoreColor;
+
+  const convClass = d.conviction?.toLowerCase() || 'low';
+  document.getElementById('conviction').innerHTML = `<span class="badge ${convClass}">${d.conviction}</span>`;
+  document.getElementById('actionClass').textContent = d.action_class || '—';
+  document.getElementById('timeHorizon').textContent = d.time_horizon || '—';
+  document.getElementById('alignState').textContent = d.alignment_state || '—';
+  document.getElementById('riskState').innerHTML = `<span class="badge ${(d.risk_state||'').toLowerCase().includes('ele') ? 'bearish' : 'neutral'}">${d.risk_state || '—'}</span>`;
+  document.getElementById('domScenario').textContent = d.dominant_scenario || '—';
+  document.getElementById('altScenario').textContent = '↳ Alt: ' + (d.alternate_scenario || '—');
+  document.getElementById('briefing').textContent = '"' + (d.composite_briefing || '—') + '"';
+
+  const tm = d.trigger_map || {};
+  document.getElementById('confirmAbove').textContent = tm.confirm_above != null ? '$' + tm.confirm_above.toFixed(2) : 'N/A';
+  document.getElementById('invalidateBelow').textContent = tm.invalidate_below != null ? '$' + tm.invalidate_below.toFixed(2) : 'N/A';
+  document.getElementById('sweepTarget').textContent = tm.sweep_target != null ? '$' + tm.sweep_target.toFixed(2) : 'N/A';
+  document.getElementById('trapTrigger').textContent = tm.trap_trigger || 'None';
+  document.getElementById('confirmMode').textContent = tm.confirmation_mode || '—';
+
+  // Scenarios
+  const sp = d.scenario_probabilities || {};
+  const colors = ['#a855f7','#3b82f6','#10b981','#f59e0b','#ef4444'];
+  let sc = '';
+  Object.entries(sp).sort((a,b)=>b[1]-a[1]).forEach(([name, prob], i) => {
+    const pct = (prob * 100).toFixed(1);
+    sc += `<div class="scenario-row">
+      <div class="scenario-name">${name.replace(/_/g,' ')}</div>
+      <div class="scenario-bar-wrap"><div class="scenario-bar" style="width:${pct}%;background:${colors[i%colors.length]}22;border-left:3px solid ${colors[i%colors.length]}">${pct}%</div></div>
+      <div class="scenario-pct">${pct}%</div>
+    </div>`;
+  });
+  document.getElementById('scenarioRows').innerHTML = sc || '<div style="color:var(--muted);font-size:.8rem">No scenario data</div>';
+
+  // Subsystems
+  const ss = d.scores || {};
+  const subHTML = `
+    <div class="sub-card">
+      <h3>⚡ Fusion Scores</h3>
+      <div class="sub-row"><span>Argus Strength</span><span>${((ss.argus_strength||0)*100).toFixed(1)}</span></div>
+      <div class="sub-row"><span>Echo Strength</span><span>${((ss.echo_strength||0)*100).toFixed(1)}</span></div>
+      <div class="sub-row"><span>Liquidity Strength</span><span>${((ss.liquidity_strength||0)*100).toFixed(1)}</span></div>
+      <div class="sub-row"><span>Truth Adjusted</span><span>${((ss.truth_adjusted_strength||0)*100).toFixed(1)}</span></div>
+      <div class="sub-row"><span>Alignment</span><span>${((ss.alignment_strength||0)*100).toFixed(1)}</span></div>
+    </div>`;
+  document.getElementById('subsystemsGrid').innerHTML = subHTML;
+}
+
+function showError(msg) {
+  const box = document.getElementById('errBox');
+  box.textContent = '⚠ Error: ' + msg;
+  box.style.display = 'block';
+  document.getElementById('emptyState').style.display = 'block';
+}
+
+// Check health on load
+fetch(`${API}/health`).then(r=>r.json()).then(d=>{
+  document.getElementById('statusDot').style.background = d.status === 'operational' ? 'var(--green)' : 'var(--red)';
+}).catch(()=>{ document.getElementById('statusDot').style.background = 'var(--red)'; });
+</script>
+</body>
+</html>
