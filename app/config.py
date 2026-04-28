@@ -83,5 +83,5 @@ CI_EXTREME_THRESH = float(os.getenv("S3_GRADE_A", 80)) / 100.0
 # ——— APP CONFIG ——————————————————————————————————————————————————————————————
 APP_NAME = "Argus Omega"
 DEBUG = os.getenv("DEBUG", "False") == "True"
-PORT = int(os.getenv("PORT", 8080))
+PORT = int(os.getenv("PORT", 8181))
 HOST = os.getenv("HOST", "0.0.0.0")
