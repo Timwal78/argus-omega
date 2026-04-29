@@ -33,7 +33,7 @@ SCAN_INTERVAL = int(os.getenv("ARGUS_SCAN_INTERVAL", "300"))  # 5 min default
 DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK_ECHO", os.getenv("DISCORD_WEBHOOK_SYSTEM", ""))
 
 # Internal URLs for subsystems
-SQUEEZEOS_URL = os.getenv("SQUEEZE_OS_URL", "http://localhost:8182")
+SQUEEZEOS_URL = os.getenv("SQUEEZE_OS_URL", "https://localhost:8182")
 ECHOFORGE_URL = os.getenv("ECHO_FORGE_URL", "http://localhost:8001")
 
 
@@ -51,7 +51,7 @@ class AutonomousScanner:
 
     def _get_client(self):
         if self._client is None or self._client.is_closed:
-            self._client = httpx.AsyncClient(timeout=10.0)
+            self._client = httpx.AsyncClient(timeout=15.0, verify=False)
         return self._client
 
     async def start_loop(self):
