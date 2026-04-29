@@ -8,6 +8,7 @@ Main application entry point. Configures FastAPI with:
 - Health check endpoint
 - Startup/shutdown lifecycle hooks
 """
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -42,7 +43,18 @@ async def lifespan(app: FastAPI):
         "Argus Omega is now monitoring institutional fusion layers.",
         color=0x2ecc71 # Green
     )
+    
+    # Start Autonomous Scanner (The Brain)
+    from app.services.autonomous_scanner import AutonomousScanner
+    scanner = AutonomousScanner()
+    scanner_task = asyncio.create_task(scanner.start_loop())
+    
     yield
+    
+    # Cleanup
+    scanner.stop()
+    await scanner.close()
+    scanner_task.cancel()
     logger.info("ARGUS OMEGA — Shutting down.")
 
 
