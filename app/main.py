@@ -10,6 +10,7 @@ Main application entry point. Configures FastAPI with:
 """
 import asyncio
 import logging
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from fastapi import FastAPI
@@ -71,13 +72,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow dashboard and external integrations
+# CORS — controlled via CORS_ORIGINS env var; defaults to localhost for dev
+_cors_raw = os.getenv("CORS_ORIGINS", "")
+_cors_origins = [o.strip() for o in _cors_raw.split(",") if o.strip()] if _cors_raw else ["http://localhost:3000", "http://localhost:5173"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # Register routes at both paths:
